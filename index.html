@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="style.css" type="text/css" rel="stylesheet">
+    <link rel="shortcut icon" href="icons/favicon.svg" type="image/x-icon">
+    <title>ToDoList</title>
+</head>
+<body>
+    <div class="wrapper">
+        <main>
+            <aside>
+                <div class="highBlock">
+                    <div class="highBlock__title">JavaScript</div>
+                    <div class="highBlock__subtitle">JavaScript Example</div>
+                    <div class="highBlock__link"><a href="https://github.com/Chipi007/ToDoList" class="">Source</a></div>
+                </div>
+                <div class="quote">
+                    <blockquote class = "quote speech-bubble"><p>JavaScript® (often shortened to JS) is a lightweight, interpreted, object-oriented language with first-class functions, most known as the scripting language for Web pages, but used in many non-browser environments as well such as node.js or Apache CouchDB.</p></blockquote>
+                    <footer class = "JS"><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript" class="">JavaScript</a></footer>
+                </div>
+                <footer class="footer">If you have other helpful links to share, or find any of the links above no longer work, please <span>let us know<span></footer>
+            </aside>
+            <div class="todoapp__container">
+                <div class="todoapp">
+                    <header>todos</header>
+                    <div class="inputField">
+                        <button class="addDuty"><img src="icons/chevron-down.svg" alt="" class=""></button>
+                        <input id="newDuty" class="newDuty"type="text" placeholder="What needs to be done?" autofocus>
+                    </div>
+                    <div class="todo-list__container">
+                        <ul class = "todo-list">
+                        </ul>
+                        <div class="infoDuties infoDuties_hide">
+                            <div class="leftDuties"><span class = "leftTasks">0</span> item<span class = "hideS">s</span></span> left</div>
+                            <button class="allDuties Duties" value = "all">All</button>
+                            <button class="activeDuties Duties" value = "active">Active</button>
+                            <button class="completedDuties Duties" value = "completed">Completed</button>
+                            <button class="deleteCompletedDuties">Clear completed</button>
+                        </div>
+                    </div>
+                    <footer class = "helpInfo">
+                        <div class="infoAboutDoubleClick">Double-click to edit a todo</div>
+                        <div class="">Created by <a href="https://github.com/Chipi007" class="">Konuhova Alina</a></div>
+                    </footer>
+                </div>
+            </div>
+        </main>
+    </div>
+    <script src = "index.js"></script>
+</body>
+</html>
