@@ -254,6 +254,7 @@ header{
     background: #f5f5f5;
     display: flex;
     position: relative;
+    text-overflow: clip;
 }
 input[type=text]{
     width: 100%;
@@ -269,9 +270,11 @@ input[type=text]{
         font-size: 22px;
     }
 }
+.todo-list{
+    
+}
 label{
     position: absolute;
-
 }
 label input[type=checkbox] {
     position: absolute; 
@@ -320,6 +323,7 @@ label input:checked ~ span:after{
     background: transparent;
 }
 ul li{
+    position: relative;
     border: none;
     background: #ffffff;
     width: 100%;
@@ -332,7 +336,7 @@ ul li{
     box-shadow:  0 0 3px 0 rgb(0 0 0 / 20%);
     display: flex;
     justify-content: space-between;
-    overflow-wrap: normal;
+    word-break: break-all;
 }
 @media(max-width: 385px){
     ul li{
@@ -411,6 +415,9 @@ ul li:hover .deleteDuty{
     .Duties{
         padding: 3px 3px;
     }
+}
+.focus{
+    border-color: rgba(175, 47, 47, 0.2);
 }
 .completedDuties{
     margin: 0px 30px 0px 0px;

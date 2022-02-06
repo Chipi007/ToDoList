@@ -37,13 +37,8 @@ const createDuty = (task, index) => {
     `
 }
 
-const initializeComponent = () => {
-
-    todoList.innerHTML = "";
-
-
+const countTasks = () =>{
     tasks.filter(x => x.completed == true).length > 0 ? deleteCompletedDuties.classList.add('visible') : deleteCompletedDuties.classList.remove('visible');
-
     leftTasks.innerHTML = tasks.filter(x => x.completed == false).length;
     if(tasks.filter(x => x.completed == false).length == 1) {
         hideS.classList.add('hideS');
@@ -51,13 +46,28 @@ const initializeComponent = () => {
     else{
         hideS.classList.remove('hideS')
     } 
+}
+
+const initializeComponent = () => {
+
+    todoList.innerHTML = "";
+    countTasks();
+
+    /*tasks.filter(x => x.completed == true).length > 0 ? deleteCompletedDuties.classList.add('visible') : deleteCompletedDuties.classList.remove('visible');
+
+    leftTasks.innerHTML = tasks.filter(x => x.completed == false).length;
+    if(tasks.filter(x => x.completed == false).length == 1) {
+        hideS.classList.add('hideS');
+    }
+    else{
+        hideS.classList.remove('hideS')
+    } */
 
 
     if (tasks.length > 0) {
         tasks.forEach((item, index) => {
             todoList.innerHTML += createDuty(item, index);
         });
-
 
         if(!localStorage.tasks){
             infoDuties.classList.add('infoDuties_hide');
@@ -70,6 +80,7 @@ const initializeComponent = () => {
 
 initializeComponent();
 
+
 const writeToLocal = () => {
     localStorage.setItem('tasks', JSON.stringify(tasks));
 }
@@ -79,7 +90,28 @@ const completeTask = index => {
     tasks[index].completed = !tasks[index].completed;
     todoItems[index].classList.toggle('completed');
     writeToLocal();
-    initializeComponent();
+    countTasks();
+    if(allDuties.classList.contains("focus")){
+        initializeComponent();
+    }
+    if(activeDuties.classList.contains("focus")){
+        todoList.innerHTML = "";
+        if (tasks.length > 0){
+            if(tasks.filter(x => x.completed == false)){
+                tasks.filter(x => x.completed == false).forEach((item, index) => {
+                todoList.innerHTML += createDuty(item, index);
+                });
+            }
+        }
+    }
+    if(completedDuties.classList.contains("focus")){
+        todoList.innerHTML = "";
+        if (tasks.length > 0){
+            tasks.filter(x => x.completed == true).forEach((item, index) => {
+            todoList.innerHTML += createDuty(item, index);
+            });
+        }
+    }
 }
 
 
@@ -106,16 +138,16 @@ const editTask = index => {
                 tasks.splice(index, 1);
                 writeToLocal();
                 initializeComponent();
+                countTasks();
             }
-
             todoItems[index].removeAttribute('contenteditable', true);
             todoItems[index].classList.remove('editable');
             isDone[index].classList.remove('hideS');
             deleteDuty[index].classList.remove('hideS');
         }, true);
 
-        todoItems[index].addEventListener('keypress', event => {
-            if (event.key === 'Enter') {
+        todoItems[index].addEventListener('keydown', event => {
+            if (event.key === 'Enter' || event.key === 'Escape') {
                 let newValue = todoItems[index].textContent.trim();
                 if(newValue != ""){
                     if(newValue != oldValue){                    
@@ -128,6 +160,7 @@ const editTask = index => {
                     tasks.splice(index, 0);
                     writeToLocal();
                     initializeComponent();
+                    countTasks();
                 }
                 todoItems[index].removeAttribute('contenteditable', true);
                 todoItems[index].classList.remove('editable');
@@ -148,11 +181,35 @@ const deleteTask = index => {
 
 addBtn.addEventListener('click', (index, e) => {
     if(taskInput.value != ''){
-        tasks.push(new Task(taskInput.value));
-        taskInput.value = "";
-        writeToLocal();
-        initializeComponent();
-        infoDuties.classList.remove('infoDuties_hide');
+        if(/^[ ]+$/.test(taskInput.value) == false){
+            tasks.push(new Task(taskInput.value));
+            taskInput.value = "";
+            writeToLocal();
+            infoDuties.classList.remove('infoDuties_hide');
+            if(allDuties.classList.contains("focus")){
+                initializeComponent();
+            }
+            if(activeDuties.classList.contains("focus")){
+                todoList.innerHTML = "";
+                if (tasks.length > 0){
+                    if(tasks.filter(x => x.completed == false)){
+                        tasks.filter(x => x.completed == false).forEach((item, index) => {
+                        todoList.innerHTML += createDuty(item, index);
+                        });
+                    }
+                }
+            }
+            if(completedDuties.classList.contains("focus")){
+                todoList.innerHTML = "";
+                if (tasks.length > 0){
+                    if(tasks.filter(x => x.completed == true)){
+                        tasks.filter(x => x.completed == true).forEach((item, index) => {
+                        todoList.innerHTML += createDuty(item, index);
+                        });
+                    }
+                }
+            }
+        }
     }
     else{
         if(tasks.filter(x => x.completed == true).length < tasks.length){
@@ -175,20 +232,24 @@ addBtn.addEventListener('click', (index, e) => {
 
 allDuties.addEventListener('click',
     function addAllTasks(){
+        completedDuties.classList.remove("focus");
+        activeDuties.classList.remove("focus");
+        allDuties.classList.add("focus");
         todoList.innerHTML = "";
         if (tasks.length > 0) {
             tasks.forEach((item, index) => {
                 todoList.innerHTML += createDuty(item, index);
             });
         }
-        initializeComponent();
-        writeToLocal();
     }
 )
 
 
 completedDuties.addEventListener('click',
     function addCompletedTasks(){
+        allDuties.classList.remove("focus");
+        activeDuties.classList.remove("focus");
+        completedDuties.classList.add("focus");
         todoList.innerHTML = "";
         if (tasks.length > 0){
             if(tasks.filter(x => x.completed == true)){
@@ -197,13 +258,15 @@ completedDuties.addEventListener('click',
                 });
             }
         }
-        writeToLocal();
     }
 )
 
 
 activeDuties.addEventListener('click',
     function addActiveTasks(){
+        allDuties.classList.remove("focus");
+        completedDuties.classList.remove("focus");
+        activeDuties.classList.add("focus");
         todoList.innerHTML = "";
         if (tasks.length > 0){
             if(tasks.filter(x => x.completed == false)){
@@ -212,7 +275,6 @@ activeDuties.addEventListener('click',
                 });
             }
         }
-        writeToLocal();
     }
 )
 
@@ -229,12 +291,38 @@ deleteCompletedDuties.addEventListener('click',
 
 taskInput.addEventListener('keypress', event => {
     if (event.key === 'Enter') {
-        if(taskInput.value != ''){
+        if(taskInput.value == '' || taskInput.value.match(/^[ ]+$/)){
+        }
+        else{
             tasks.push(new Task(taskInput.value));
             taskInput.value = "";
             writeToLocal();
-            initializeComponent();
             infoDuties.classList.remove('infoDuties_hide');
+            if(allDuties.classList.contains("focus")){
+                initializeComponent();
+            }
+            if(activeDuties.classList.contains("focus")){
+                todoList.innerHTML = "";
+                if (tasks.length > 0){
+                    if(tasks.filter(x => x.completed == false)){
+                        tasks.filter(x => x.completed == false).forEach((item, index) => {
+                        todoList.innerHTML += createDuty(item, index);
+                        countTasks();
+                        });
+                    }
+                }
+            }
+            if(completedDuties.classList.contains("focus")){
+                todoList.innerHTML = "";
+                if (tasks.length > 0){
+                    if(tasks.filter(x => x.completed == false)){
+                        tasks.filter(x => x.completed == true).forEach((item, index) => {
+                        todoList.innerHTML += createDuty(item, index);
+                        });
+                        countTasks();
+                    }
+                }
+            }
         }
     }
 })
