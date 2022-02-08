@@ -49,21 +49,8 @@ const countTasks = () =>{
 }
 
 const initializeComponent = () => {
-
     todoList.innerHTML = "";
     countTasks();
-
-    /*tasks.filter(x => x.completed == true).length > 0 ? deleteCompletedDuties.classList.add('visible') : deleteCompletedDuties.classList.remove('visible');
-
-    leftTasks.innerHTML = tasks.filter(x => x.completed == false).length;
-    if(tasks.filter(x => x.completed == false).length == 1) {
-        hideS.classList.add('hideS');
-    }
-    else{
-        hideS.classList.remove('hideS')
-    } */
-
-
     if (tasks.length > 0) {
         tasks.forEach((item, index) => {
             todoList.innerHTML += createDuty(item, index);
@@ -75,6 +62,7 @@ const initializeComponent = () => {
         todoItems = document.querySelectorAll('.todo-item');
         isDone = document.querySelectorAll('.isDone');
         deleteDuty = document.querySelectorAll('.deleteDuty');
+        spansCompleted = document.querySelectorAll('.spanCompleted');
     }
 }
 
@@ -88,28 +76,31 @@ const writeToLocal = () => {
 
 const completeTask = index => {
     tasks[index].completed = !tasks[index].completed;
-    todoItems[index].classList.toggle('completed');
+    todoItems[index].classList.toggle('checked');
+    spansCompleted[index].classList.toggle('completed');
     writeToLocal();
     countTasks();
     if(allDuties.classList.contains("focus")){
         initializeComponent();
     }
     if(activeDuties.classList.contains("focus")){
-        todoList.innerHTML = "";
-        if (tasks.length > 0){
-            if(tasks.filter(x => x.completed == false)){
-                tasks.filter(x => x.completed == false).forEach((item, index) => {
-                todoList.innerHTML += createDuty(item, index);
-                });
+        for(let i = 0; i < todoItems.length; i++){
+            if (todoItems[i].classList.contains('checked')){
+                todoItems[i].classList.add('hideS');
+            }
+            else{
+                todoItems[i].classList.remove('hideS');
             }
         }
     }
     if(completedDuties.classList.contains("focus")){
-        todoList.innerHTML = "";
-        if (tasks.length > 0){
-            tasks.filter(x => x.completed == true).forEach((item, index) => {
-            todoList.innerHTML += createDuty(item, index);
-            });
+        for(let i = 0; i < todoItems.length; i++){
+            if (todoItems[i].classList.contains('checked')){
+                todoItems[i].classList.remove('hideS');
+            }
+            else{
+                todoItems[i].classList.add('hideS');
+            }
         }
     }
 }
@@ -176,6 +167,26 @@ const deleteTask = index => {
     tasks.splice(index, 1);
     writeToLocal();
     initializeComponent();
+    if(activeDuties.classList.contains("focus")){
+        for(let i = 0; i < todoItems.length; i++){
+            if (todoItems[i].classList.contains('checked')){
+                todoItems[i].classList.add('hideS');
+            }
+            else{
+                todoItems[i].classList.remove('hideS');
+            }
+        }
+    }
+    if(completedDuties.classList.contains("focus")){
+        for(let i = 0; i < todoItems.length; i++){
+            if (todoItems[i].classList.contains('checked')){
+                todoItems[i].classList.remove('hideS');
+            }
+            else{
+                todoItems[i].classList.add('hideS');
+            }
+        }
+    }
 }
 
 
@@ -185,27 +196,26 @@ addBtn.addEventListener('click', (index, e) => {
             tasks.push(new Task(taskInput.value));
             taskInput.value = "";
             writeToLocal();
+            initializeComponent();
+            countTasks();
             infoDuties.classList.remove('infoDuties_hide');
-            if(allDuties.classList.contains("focus")){
-                initializeComponent();
-            }
             if(activeDuties.classList.contains("focus")){
-                todoList.innerHTML = "";
-                if (tasks.length > 0){
-                    if(tasks.filter(x => x.completed == false)){
-                        tasks.filter(x => x.completed == false).forEach((item, index) => {
-                        todoList.innerHTML += createDuty(item, index);
-                        });
+                for(let i = 0; i < todoItems.length; i++){
+                    if (todoItems[i].classList.contains('checked')){
+                        todoItems[i].classList.add('hideS');
+                    }
+                    else{
+                        todoItems[i].classList.remove('hideS');
                     }
                 }
             }
             if(completedDuties.classList.contains("focus")){
-                todoList.innerHTML = "";
-                if (tasks.length > 0){
-                    if(tasks.filter(x => x.completed == true)){
-                        tasks.filter(x => x.completed == true).forEach((item, index) => {
-                        todoList.innerHTML += createDuty(item, index);
-                        });
+                for(let i = 0; i < todoItems.length; i++){
+                    if (todoItems[i].classList.contains('checked')){
+                        todoItems[i].classList.remove('hideS');
+                    }
+                    else{
+                        todoItems[i].classList.add('hideS');
                     }
                 }
             }
@@ -216,14 +226,54 @@ addBtn.addEventListener('click', (index, e) => {
             for (let i = 0; i < tasks.length; i++) {
                 tasks[i].completed = true;
                 writeToLocal();
-                initializeComponent(); 
+                initializeComponent();
+                if(activeDuties.classList.contains("focus")){
+                    for(let i = 0; i < todoItems.length; i++){
+                        if (todoItems[i].classList.contains('checked')){
+                            todoItems[i].classList.add('hideS');
+                        }
+                        else{
+                            todoItems[i].classList.remove('hideS');
+                        }
+                    }
+                }
+                if(completedDuties.classList.contains("focus")){
+                    for(let i = 0; i < todoItems.length; i++){
+                        if (todoItems[i].classList.contains('checked')){
+                            todoItems[i].classList.remove('hideS');
+                        }
+                        else{
+                            todoItems[i].classList.add('hideS');
+                        }
+                    }
+                } 
             }
         }
         else{
             for (let i = 0; i < tasks.length; i++) {
                 tasks[i].completed = false;
                 writeToLocal();
-                initializeComponent(); 
+                initializeComponent();
+                if(activeDuties.classList.contains("focus")){
+                    for(let i = 0; i < todoItems.length; i++){
+                        if (todoItems[i].classList.contains('checked')){
+                            todoItems[i].classList.add('hideS');
+                        }
+                        else{
+                            todoItems[i].classList.remove('hideS');
+                        }
+                    }
+                }
+                if(completedDuties.classList.contains("focus")){
+                    for(let i = 0; i < todoItems.length; i++){
+                        if (todoItems[i].classList.contains('checked')){
+                            todoItems[i].classList.remove('hideS');
+                        }
+                        else{
+                            todoItems[i].classList.add('hideS');
+                        }
+                    }
+                } 
             }
         }
     }
@@ -235,12 +285,7 @@ allDuties.addEventListener('click',
         completedDuties.classList.remove("focus");
         activeDuties.classList.remove("focus");
         allDuties.classList.add("focus");
-        todoList.innerHTML = "";
-        if (tasks.length > 0) {
-            tasks.forEach((item, index) => {
-                todoList.innerHTML += createDuty(item, index);
-            });
-        }
+        initializeComponent();
     }
 )
 
@@ -250,15 +295,15 @@ completedDuties.addEventListener('click',
         allDuties.classList.remove("focus");
         activeDuties.classList.remove("focus");
         completedDuties.classList.add("focus");
-        todoList.innerHTML = "";
-        if (tasks.length > 0){
-            if(tasks.filter(x => x.completed == true)){
-                tasks.filter(x => x.completed == true).forEach((item, index) => {
-                todoList.innerHTML += createDuty(item, index);
-                });
+            for(let i = 0; i < todoItems.length; i++){
+                if (todoItems[i].classList.contains('checked')){
+                    todoItems[i].classList.remove('hideS');
+                }
+                else{
+                    todoItems[i].classList.add('hideS');
+                }
             }
         }
-    }
 )
 
 
@@ -267,12 +312,12 @@ activeDuties.addEventListener('click',
         allDuties.classList.remove("focus");
         completedDuties.classList.remove("focus");
         activeDuties.classList.add("focus");
-        todoList.innerHTML = "";
-        if (tasks.length > 0){
-            if(tasks.filter(x => x.completed == false)){
-                tasks.filter(x => x.completed == false).forEach((item, index) => {
-                todoList.innerHTML += createDuty(item, index);
-                });
+        for(let i = 0; i < todoItems.length; i++){
+            if (todoItems[i].classList.contains('checked')){
+                todoItems[i].classList.add('hideS');
+            }
+            else{
+                todoItems[i].classList.remove('hideS');
             }
         }
     }
@@ -285,6 +330,26 @@ deleteCompletedDuties.addEventListener('click',
         completedTasks.forEach(f => tasks.splice(tasks.findIndex(x => x.completed === f.completed),1));
         writeToLocal();
         initializeComponent();
+        if(activeDuties.classList.contains("focus")){
+            for(let i = 0; i < todoItems.length; i++){
+                if (todoItems[i].classList.contains('checked')){
+                    todoItems[i].classList.add('hideS');
+                }
+                else{
+                    todoItems[i].classList.remove('hideS');
+                }
+            }
+        }
+        if(completedDuties.classList.contains("focus")){
+            for(let i = 0; i < todoItems.length; i++){
+                if (todoItems[i].classList.contains('checked')){
+                    todoItems[i].classList.remove('hideS');
+                }
+                else{
+                    todoItems[i].classList.add('hideS');
+                }
+            }
+        }
     }
 )
 
@@ -297,30 +362,29 @@ taskInput.addEventListener('keypress', event => {
             tasks.push(new Task(taskInput.value));
             taskInput.value = "";
             writeToLocal();
+            initializeComponent();
+            countTasks();
             infoDuties.classList.remove('infoDuties_hide');
-            if(allDuties.classList.contains("focus")){
-                initializeComponent();
-            }
             if(activeDuties.classList.contains("focus")){
-                todoList.innerHTML = "";
-                if (tasks.length > 0){
-                    if(tasks.filter(x => x.completed == false)){
-                        tasks.filter(x => x.completed == false).forEach((item, index) => {
-                        todoList.innerHTML += createDuty(item, index);
-                        countTasks();
-                        });
+                for(let i = 0; i < todoItems.length; i++){
+                    if (todoItems[i].classList.contains('checked')){
+                        todoItems[i].classList.add('hideS');
                     }
+                    else{
+                        todoItems[i].classList.remove('hideS');
+                    }
+                    countTasks();
                 }
             }
             if(completedDuties.classList.contains("focus")){
-                todoList.innerHTML = "";
-                if (tasks.length > 0){
-                    if(tasks.filter(x => x.completed == false)){
-                        tasks.filter(x => x.completed == true).forEach((item, index) => {
-                        todoList.innerHTML += createDuty(item, index);
-                        });
-                        countTasks();
+                for(let i = 0; i < todoItems.length; i++){
+                    if (todoItems[i].classList.contains('checked')){
+                        todoItems[i].classList.remove('hideS');
                     }
+                    else{
+                        todoItems[i].classList.add('hideS');
+                    }
+                    countTasks();
                 }
             }
         }
