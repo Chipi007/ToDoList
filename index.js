@@ -121,8 +121,30 @@ const editTask = index => {
             if(newValue != ""){
                 if(newValue != oldValue){                    
                     tasks[index].description = newValue;
+                    if(activeDuties.classList.contains("focus")){
+                        initializeComponent();
+                    }
+                    if(activeDuties.classList.contains("focus")){
+                        for(let i = 0; i < todoItems.length; i++){
+                            if (todoItems[i].classList.contains('checked')){
+                                todoItems[i].classList.add('hideS');
+                            }
+                            else{
+                                todoItems[i].classList.remove('hideS');
+                            }
+                        }
+                    }
+                    if(completedDuties.classList.contains("focus")){
+                        for(let i = 0; i < todoItems.length; i++){
+                            if (todoItems[i].classList.contains('checked')){
+                                todoItems[i].classList.remove('hideS');
+                            }
+                            else{
+                                todoItems[i].classList.add('hideS');
+                            }
+                        }
+                    }
                     writeToLocal();
-                    initializeComponent();
                 }
             }
             else{
@@ -143,8 +165,30 @@ const editTask = index => {
                 if(newValue != ""){
                     if(newValue != oldValue){                    
                         tasks[index].description = newValue;
+                        if(activeDuties.classList.contains("focus")){
+                            initializeComponent();
+                        }
+                        if(activeDuties.classList.contains("focus")){
+                            for(let i = 0; i < todoItems.length; i++){
+                                if (todoItems[i].classList.contains('checked')){
+                                    todoItems[i].classList.add('hideS');
+                                }
+                                else{
+                                    todoItems[i].classList.remove('hideS');
+                                }
+                            }
+                        }
+                        if(completedDuties.classList.contains("focus")){
+                            for(let i = 0; i < todoItems.length; i++){
+                                if (todoItems[i].classList.contains('checked')){
+                                    todoItems[i].classList.remove('hideS');
+                                }
+                                else{
+                                    todoItems[i].classList.add('hideS');
+                                }
+                            }
+                        }
                         writeToLocal();
-                        initializeComponent();
                     }
                 }
                 else{

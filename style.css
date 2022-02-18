@@ -324,7 +324,7 @@ label input:checked ~ span:after{
 }
 ul li{
     position: relative;
-    border: none;
+    border: 1px solid transparent;
     background: #ffffff;
     width: 100%;
     max-width: 550px;
@@ -348,7 +348,6 @@ ul li:hover .deleteDuty{
     opacity: 100%;
 }
 .infoDuties {
-    border: none;
     background: #ffffff;
     width: 100%;
     font-size: 14px;
