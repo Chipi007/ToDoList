@@ -9,18 +9,9 @@ const completedDuties = document.querySelector('.completedDuties');
 const activeDuties = document.querySelector('.activeDuties');
 const deleteCompletedDuties = document.querySelector('.deleteCompletedDuties');
 
-let tasks;
-
 let todoItems = [];
-
-if(!localStorage.tasks){
-    tasks = [];
-    infoDuties.classList.add('infoDuties_hide');
-}
-else {
-    tasks = JSON.parse(localStorage.getItem('tasks'));
-    infoDuties.classList.remove('infoDuties_hide');
-}
+const tasks = !localStorage.tasks ? [] : JSON.parse(localStorage.getItem('tasks')); 
+tasks.length > 0 ? infoDuties.classList.remove('infoDuties_hide') : infoDuties.classList.add('infoDuties_hide');
 
 function Task(description){
     this.description = description;
@@ -68,12 +59,33 @@ const initializeComponent = () => {
 
 initializeComponent();
 
-
 const writeToLocal = () => {
     localStorage.setItem('tasks', JSON.stringify(tasks));
 }
 
+const findCompletedTasks = () => {
+    for(let i = 0; i < todoItems.length; i++){
+        if (todoItems[i].classList.contains('checked')){
+            todoItems[i].classList.remove('hideS');
+        }
+        else{
+            todoItems[i].classList.add('hideS');
+        }
+    }
+}
 
+const findActiveTasks = () => {
+    for(let i = 0; i < todoItems.length; i++){
+        if (todoItems[i].classList.contains('checked')){
+            todoItems[i].classList.add('hideS');
+        }
+        else{
+            todoItems[i].classList.remove('hideS');
+        }
+    }
+}
+
+//Завершение задачи (обработчик события написан в HTML)
 const completeTask = index => {
     tasks[index].completed = !tasks[index].completed;
     todoItems[index].classList.toggle('checked');
@@ -84,38 +96,27 @@ const completeTask = index => {
         initializeComponent();
     }
     if(activeDuties.classList.contains("focus")){
-        for(let i = 0; i < todoItems.length; i++){
-            if (todoItems[i].classList.contains('checked')){
-                todoItems[i].classList.add('hideS');
-            }
-            else{
-                todoItems[i].classList.remove('hideS');
-            }
-        }
+        findActiveTasks();
     }
     if(completedDuties.classList.contains("focus")){
-        for(let i = 0; i < todoItems.length; i++){
-            if (todoItems[i].classList.contains('checked')){
-                todoItems[i].classList.remove('hideS');
-            }
-            else{
-                todoItems[i].classList.add('hideS');
-            }
-        }
+        findCompletedTasks();
     }
 }
 
-
+//Редактирование задачи
 const editTask = index => {
+    //Проверка на завершённость задачи
     if(!todoItems[index].classList.contains('checked')){
         todoItems[index].setAttribute('contenteditable', true);
         todoItems[index].focus();
-        let oldValue = todoItems[index].textContent;
 
+        let oldValue = todoItems[index].textContent;
         todoItems[index].classList.add('editable');
+        //Скрываем checkbox и кнопку удаления
         isDone[index].classList.add('hideS');
         deleteDuty[index].classList.add('hideS');
 
+        //Функция выполняется при удалении фокуса с задачи
         todoItems[index].addEventListener("blur", function( event ) {
             let newValue = todoItems[index].textContent.trim();
             if(newValue != ""){
@@ -125,24 +126,10 @@ const editTask = index => {
                         initializeComponent();
                     }
                     if(activeDuties.classList.contains("focus")){
-                        for(let i = 0; i < todoItems.length; i++){
-                            if (todoItems[i].classList.contains('checked')){
-                                todoItems[i].classList.add('hideS');
-                            }
-                            else{
-                                todoItems[i].classList.remove('hideS');
-                            }
-                        }
+                        findActiveTasks();
                     }
                     if(completedDuties.classList.contains("focus")){
-                        for(let i = 0; i < todoItems.length; i++){
-                            if (todoItems[i].classList.contains('checked')){
-                                todoItems[i].classList.remove('hideS');
-                            }
-                            else{
-                                todoItems[i].classList.add('hideS');
-                            }
-                        }
+                        findCompletedTasks();
                     }
                     writeToLocal();
                 }
@@ -159,6 +146,7 @@ const editTask = index => {
             deleteDuty[index].classList.remove('hideS');
         }, true);
 
+        //Функция выполняется при нажатии на клавиши Enter и Escape
         todoItems[index].addEventListener('keydown', event => {
             if (event.key === 'Enter' || event.key === 'Escape') {
                 let newValue = todoItems[index].textContent.trim();
@@ -169,24 +157,10 @@ const editTask = index => {
                             initializeComponent();
                         }
                         if(activeDuties.classList.contains("focus")){
-                            for(let i = 0; i < todoItems.length; i++){
-                                if (todoItems[i].classList.contains('checked')){
-                                    todoItems[i].classList.add('hideS');
-                                }
-                                else{
-                                    todoItems[i].classList.remove('hideS');
-                                }
-                            }
+                            findActiveTasks();
                         }
                         if(completedDuties.classList.contains("focus")){
-                            for(let i = 0; i < todoItems.length; i++){
-                                if (todoItems[i].classList.contains('checked')){
-                                    todoItems[i].classList.remove('hideS');
-                                }
-                                else{
-                                    todoItems[i].classList.add('hideS');
-                                }
-                            }
+                            findCompletedTasks();
                         }
                         writeToLocal();
                     }
@@ -206,200 +180,118 @@ const editTask = index => {
     }
 }
 
-
+//Удаление задачи (обработчик события написан в HTML)
 const deleteTask = index => {
     tasks.splice(index, 1);
     writeToLocal();
     initializeComponent();
     if(activeDuties.classList.contains("focus")){
-        for(let i = 0; i < todoItems.length; i++){
-            if (todoItems[i].classList.contains('checked')){
-                todoItems[i].classList.add('hideS');
-            }
-            else{
-                todoItems[i].classList.remove('hideS');
-            }
-        }
+        findActiveTasks();
     }
     if(completedDuties.classList.contains("focus")){
-        for(let i = 0; i < todoItems.length; i++){
-            if (todoItems[i].classList.contains('checked')){
-                todoItems[i].classList.remove('hideS');
-            }
-            else{
-                todoItems[i].classList.add('hideS');
-            }
-        }
+       findCompletedTasks();
     }
 }
 
-
 addBtn.addEventListener('click', (index, e) => {
     if(taskInput.value != ''){
+        //Регулярное выражение, определяющее в поле ввода только пробелы
         if(/^[ ]+$/.test(taskInput.value) == false){
             tasks.push(new Task(taskInput.value));
             taskInput.value = "";
             writeToLocal();
             initializeComponent();
             countTasks();
+
             infoDuties.classList.remove('infoDuties_hide');
             if(activeDuties.classList.contains("focus")){
-                for(let i = 0; i < todoItems.length; i++){
-                    if (todoItems[i].classList.contains('checked')){
-                        todoItems[i].classList.add('hideS');
-                    }
-                    else{
-                        todoItems[i].classList.remove('hideS');
-                    }
-                }
+                findActiveTasks();
             }
             if(completedDuties.classList.contains("focus")){
-                for(let i = 0; i < todoItems.length; i++){
-                    if (todoItems[i].classList.contains('checked')){
-                        todoItems[i].classList.remove('hideS');
-                    }
-                    else{
-                        todoItems[i].classList.add('hideS');
-                    }
-                }
+                findCompletedTasks();
             }
         }
     }
     else{
+        //Если поле пустое и если хотя бы одна задача не завершена, то по нажатию на кнопку все задачи становятся заврешёнными
         if(tasks.filter(x => x.completed == true).length < tasks.length){
             for (let i = 0; i < tasks.length; i++) {
                 tasks[i].completed = true;
                 writeToLocal();
                 initializeComponent();
                 if(activeDuties.classList.contains("focus")){
-                    for(let i = 0; i < todoItems.length; i++){
-                        if (todoItems[i].classList.contains('checked')){
-                            todoItems[i].classList.add('hideS');
-                        }
-                        else{
-                            todoItems[i].classList.remove('hideS');
-                        }
-                    }
+                    findActiveTasks();
                 }
                 if(completedDuties.classList.contains("focus")){
-                    for(let i = 0; i < todoItems.length; i++){
-                        if (todoItems[i].classList.contains('checked')){
-                            todoItems[i].classList.remove('hideS');
-                        }
-                        else{
-                            todoItems[i].classList.add('hideS');
-                        }
-                    }
+                    findCompletedTasks();
                 } 
             }
         }
         else{
+            //Иначе все задачи становятся не завршёнными
             for (let i = 0; i < tasks.length; i++) {
                 tasks[i].completed = false;
                 writeToLocal();
                 initializeComponent();
                 if(activeDuties.classList.contains("focus")){
-                    for(let i = 0; i < todoItems.length; i++){
-                        if (todoItems[i].classList.contains('checked')){
-                            todoItems[i].classList.add('hideS');
-                        }
-                        else{
-                            todoItems[i].classList.remove('hideS');
-                        }
-                    }
+                    findActiveTasks();
                 }
                 if(completedDuties.classList.contains("focus")){
-                    for(let i = 0; i < todoItems.length; i++){
-                        if (todoItems[i].classList.contains('checked')){
-                            todoItems[i].classList.remove('hideS');
-                        }
-                        else{
-                            todoItems[i].classList.add('hideS');
-                        }
-                    }
+                    findCompletedTasks();
                 } 
             }
         }
     }
 })
 
+//Добавление задачи при выбранной кнопке All
+let addAllTasks = () => {
+    completedDuties.classList.remove("focus");
+    activeDuties.classList.remove("focus");
+    allDuties.classList.add("focus");
+    initializeComponent();
+}
+allDuties.addEventListener('click', addAllTasks);
 
-allDuties.addEventListener('click',
-    function addAllTasks(){
-        completedDuties.classList.remove("focus");
-        activeDuties.classList.remove("focus");
-        allDuties.classList.add("focus");
-        initializeComponent();
+//Добавление задачи при выбранной кнопке Completed
+let addCompletedTasks = () =>{
+    allDuties.classList.remove("focus");
+    activeDuties.classList.remove("focus");
+    completedDuties.classList.add("focus");
+    findCompletedTasks();
+}
+completedDuties.addEventListener('click', addCompletedTasks);
+
+//Добавление задачи при выбранной кнопке Active
+let addActiveTasks = () => {
+    allDuties.classList.remove("focus");
+    completedDuties.classList.remove("focus");
+    activeDuties.classList.add("focus");
+    findActiveTasks();
+}
+activeDuties.addEventListener('click', addActiveTasks);
+
+
+//Удаление завершённых задач
+const deleteCompletedTasks = () => {
+    completedTasks = tasks.filter(x => x.completed === true);
+    completedTasks.forEach(f => tasks.splice(tasks.findIndex(x => x.completed === f.completed),1));
+    writeToLocal();
+    initializeComponent();
+    if(activeDuties.classList.contains("focus")){
+        findActiveTasks();
     }
-)
-
-
-completedDuties.addEventListener('click',
-    function addCompletedTasks(){
-        allDuties.classList.remove("focus");
-        activeDuties.classList.remove("focus");
-        completedDuties.classList.add("focus");
-            for(let i = 0; i < todoItems.length; i++){
-                if (todoItems[i].classList.contains('checked')){
-                    todoItems[i].classList.remove('hideS');
-                }
-                else{
-                    todoItems[i].classList.add('hideS');
-                }
-            }
-        }
-)
-
-
-activeDuties.addEventListener('click',
-    function addActiveTasks(){
-        allDuties.classList.remove("focus");
-        completedDuties.classList.remove("focus");
-        activeDuties.classList.add("focus");
-        for(let i = 0; i < todoItems.length; i++){
-            if (todoItems[i].classList.contains('checked')){
-                todoItems[i].classList.add('hideS');
-            }
-            else{
-                todoItems[i].classList.remove('hideS');
-            }
-        }
+    if(completedDuties.classList.contains("focus")){
+        findCompletedTasks();
     }
-)
+}
+deleteCompletedDuties.addEventListener('click', deleteCompletedTasks);
 
 
-deleteCompletedDuties.addEventListener('click', 
-    function deleteCompletedTasks(){
-        completedTasks = tasks.filter(x => x.completed === true);
-        completedTasks.forEach(f => tasks.splice(tasks.findIndex(x => x.completed === f.completed),1));
-        writeToLocal();
-        initializeComponent();
-        if(activeDuties.classList.contains("focus")){
-            for(let i = 0; i < todoItems.length; i++){
-                if (todoItems[i].classList.contains('checked')){
-                    todoItems[i].classList.add('hideS');
-                }
-                else{
-                    todoItems[i].classList.remove('hideS');
-                }
-            }
-        }
-        if(completedDuties.classList.contains("focus")){
-            for(let i = 0; i < todoItems.length; i++){
-                if (todoItems[i].classList.contains('checked')){
-                    todoItems[i].classList.remove('hideS');
-                }
-                else{
-                    todoItems[i].classList.add('hideS');
-                }
-            }
-        }
-    }
-)
-
-
+//Добавление задачи при нажатии на клавишу Enter
 taskInput.addEventListener('keypress', event => {
     if (event.key === 'Enter') {
+        //Проверка на пустоту поля
         if(taskInput.value == '' || taskInput.value.match(/^[ ]+$/)){
         }
         else{
@@ -407,30 +299,14 @@ taskInput.addEventListener('keypress', event => {
             taskInput.value = "";
             writeToLocal();
             initializeComponent();
-            countTasks();
             infoDuties.classList.remove('infoDuties_hide');
             if(activeDuties.classList.contains("focus")){
-                for(let i = 0; i < todoItems.length; i++){
-                    if (todoItems[i].classList.contains('checked')){
-                        todoItems[i].classList.add('hideS');
-                    }
-                    else{
-                        todoItems[i].classList.remove('hideS');
-                    }
-                    countTasks();
-                }
+                findActiveTasks();
             }
             if(completedDuties.classList.contains("focus")){
-                for(let i = 0; i < todoItems.length; i++){
-                    if (todoItems[i].classList.contains('checked')){
-                        todoItems[i].classList.remove('hideS');
-                    }
-                    else{
-                        todoItems[i].classList.add('hideS');
-                    }
-                    countTasks();
-                }
+                findCompletedTasks();
             }
+            countTasks();
         }
     }
 })
