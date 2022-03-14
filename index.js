@@ -29,14 +29,11 @@ const createDuty = (task, index) => {
 }
 
 const countTasks = () =>{
-    tasks.filter(x => x.completed == true).length > 0 ? deleteCompletedDuties.classList.add('visible') : deleteCompletedDuties.classList.remove('visible');
-    leftTasks.innerHTML = tasks.filter(x => x.completed == false).length;
-    if(tasks.filter(x => x.completed == false).length == 1) {
-        hideS.classList.add('hideS');
-    }
-    else{
-        hideS.classList.remove('hideS')
-    } 
+    const completedTasks = tasks.filter(x => x.completed === true);
+    const uncompletedTasks = tasks.filter(x => x.completed === false);
+    completedTasks.length > 0 ? deleteCompletedDuties.classList.add('visible') : deleteCompletedDuties.classList.remove('visible');
+    leftTasks.innerHTML = uncompletedTasks.length;
+    uncompletedTasks.length == 1 ? hideS.classList.add('hideS') : hideS.classList.remove('hideS');
 }
 
 const initializeComponent = () => {
@@ -64,25 +61,19 @@ const writeToLocal = () => {
 }
 
 const findCompletedTasks = () => {
-    for(let i = 0; i < todoItems.length; i++){
-        if (todoItems[i].classList.contains('checked')){
-            todoItems[i].classList.remove('hideS');
-        }
-        else{
-            todoItems[i].classList.add('hideS');
-        }
+    for (const item of todoItems) {
+        item.classList.contains('checked') ? item.classList.remove('hideS') : item.classList.add('hideS');
     }
 }
 
 const findActiveTasks = () => {
-    for(let i = 0; i < todoItems.length; i++){
-        if (todoItems[i].classList.contains('checked')){
-            todoItems[i].classList.add('hideS');
-        }
-        else{
-            todoItems[i].classList.remove('hideS');
-        }
+    for (const item of todoItems) {
+        item.classList.contains('checked') ? item.classList.add('hideS') : item.classList.remove('hideS');
     }
+}
+
+const filterTasks  = () => {
+    allDuties.classList.contains("focus") ? initializeComponent() : activeDuties.classList.contains("focus") ? findActiveTasks() : completedDuties.classList.contains("focus") ? findCompletedTasks() : "";
 }
 
 //Завершение задачи (обработчик события написан в HTML)
@@ -92,91 +83,52 @@ const completeTask = index => {
     spansCompleted[index].classList.toggle('completed');
     writeToLocal();
     countTasks();
-    if(allDuties.classList.contains("focus")){
-        initializeComponent();
+    filterTasks();
+}
+
+const functionOnBlur = index => {
+    let newValue = todoItems[index].textContent.trim();
+    if(newValue != "" && newValue != oldValue){                 
+        tasks[index].description = newValue;
     }
-    if(activeDuties.classList.contains("focus")){
-        findActiveTasks();
+    else{
+        tasks.splice(index, 1);
+        countTasks();
     }
-    if(completedDuties.classList.contains("focus")){
-        findCompletedTasks();
+    filterTasks();
+    writeToLocal();
+    todoItems[index].removeAttribute('contenteditable', true);
+    todoItems[index].classList.remove('editable');
+    isDone[index].classList.remove('hideS');
+    deleteDuty[index].classList.remove('hideS');
+}
+
+functionOnKeydown = (event, index) => {
+    if (event.key === 'Enter' || event.key === 'Escape') {
+        functionOnBlur(index);
     }
 }
 
 //Редактирование задачи
 const editTask = index => {
+    todoItems[index].removeEventListener("blur", () => functionOnBlur(index), true);
+    todoItems[index].removeEventListener('keydown', () => functionOnKeydown(event, index));
     //Проверка на завершённость задачи
     if(!todoItems[index].classList.contains('checked')){
         todoItems[index].setAttribute('contenteditable', true);
         todoItems[index].focus();
 
-        let oldValue = todoItems[index].textContent;
+        oldValue = todoItems[index].textContent;
         todoItems[index].classList.add('editable');
         //Скрываем checkbox и кнопку удаления
         isDone[index].classList.add('hideS');
         deleteDuty[index].classList.add('hideS');
 
         //Функция выполняется при удалении фокуса с задачи
-        todoItems[index].addEventListener("blur", function( event ) {
-            let newValue = todoItems[index].textContent.trim();
-            if(newValue != ""){
-                if(newValue != oldValue){                    
-                    tasks[index].description = newValue;
-                    if(activeDuties.classList.contains("focus")){
-                        initializeComponent();
-                    }
-                    if(activeDuties.classList.contains("focus")){
-                        findActiveTasks();
-                    }
-                    if(completedDuties.classList.contains("focus")){
-                        findCompletedTasks();
-                    }
-                    writeToLocal();
-                }
-            }
-            else{
-                tasks.splice(index, 1);
-                writeToLocal();
-                initializeComponent();
-                countTasks();
-            }
-            todoItems[index].removeAttribute('contenteditable', true);
-            todoItems[index].classList.remove('editable');
-            isDone[index].classList.remove('hideS');
-            deleteDuty[index].classList.remove('hideS');
-        }, true);
+        todoItems[index].addEventListener("blur", () => functionOnBlur(index), true);
 
         //Функция выполняется при нажатии на клавиши Enter и Escape
-        todoItems[index].addEventListener('keydown', event => {
-            if (event.key === 'Enter' || event.key === 'Escape') {
-                let newValue = todoItems[index].textContent.trim();
-                if(newValue != ""){
-                    if(newValue != oldValue){                    
-                        tasks[index].description = newValue;
-                        if(activeDuties.classList.contains("focus")){
-                            initializeComponent();
-                        }
-                        if(activeDuties.classList.contains("focus")){
-                            findActiveTasks();
-                        }
-                        if(completedDuties.classList.contains("focus")){
-                            findCompletedTasks();
-                        }
-                        writeToLocal();
-                    }
-                }
-                else{
-                    tasks.splice(index, 0);
-                    writeToLocal();
-                    initializeComponent();
-                    countTasks();
-                }
-                todoItems[index].removeAttribute('contenteditable', true);
-                todoItems[index].classList.remove('editable');
-                isDone[index].classList.remove('hideS');
-                deleteDuty[index].classList.remove('hideS');
-            }
-        })
+        todoItems[index].addEventListener('keydown', () => functionOnKeydown(event, index));
     }
 }
 
@@ -185,63 +137,26 @@ const deleteTask = index => {
     tasks.splice(index, 1);
     writeToLocal();
     initializeComponent();
-    if(activeDuties.classList.contains("focus")){
-        findActiveTasks();
-    }
-    if(completedDuties.classList.contains("focus")){
-       findCompletedTasks();
-    }
+    filterTasks();
 }
 
 addBtn.addEventListener('click', (index, e) => {
+    const completedTasks = tasks.filter(x => x.completed === true);
     if(taskInput.value != ''){
         //Регулярное выражение, определяющее в поле ввода только пробелы
         if(/^[ ]+$/.test(taskInput.value) == false){
             tasks.push(new Task(taskInput.value));
             taskInput.value = "";
-            writeToLocal();
-            initializeComponent();
             countTasks();
-
             infoDuties.classList.remove('infoDuties_hide');
-            if(activeDuties.classList.contains("focus")){
-                findActiveTasks();
-            }
-            if(completedDuties.classList.contains("focus")){
-                findCompletedTasks();
-            }
         }
     }
     else{
-        //Если поле пустое и если хотя бы одна задача не завершена, то по нажатию на кнопку все задачи становятся заврешёнными
-        if(tasks.filter(x => x.completed == true).length < tasks.length){
-            for (let i = 0; i < tasks.length; i++) {
-                tasks[i].completed = true;
-                writeToLocal();
-                initializeComponent();
-                if(activeDuties.classList.contains("focus")){
-                    findActiveTasks();
-                }
-                if(completedDuties.classList.contains("focus")){
-                    findCompletedTasks();
-                } 
-            }
-        }
-        else{
-            //Иначе все задачи становятся не завршёнными
-            for (let i = 0; i < tasks.length; i++) {
-                tasks[i].completed = false;
-                writeToLocal();
-                initializeComponent();
-                if(activeDuties.classList.contains("focus")){
-                    findActiveTasks();
-                }
-                if(completedDuties.classList.contains("focus")){
-                    findCompletedTasks();
-                } 
-            }
-        }
+        completedTasks.length < tasks.length ? tasks.forEach(item => item.completed = true) : tasks.forEach(item => item.completed = false);
     }
+    writeToLocal();
+    initializeComponent();
+    filterTasks();
 })
 
 //Добавление задачи при выбранной кнопке All
@@ -271,22 +186,15 @@ let addActiveTasks = () => {
 }
 activeDuties.addEventListener('click', addActiveTasks);
 
-
 //Удаление завершённых задач
 const deleteCompletedTasks = () => {
-    completedTasks = tasks.filter(x => x.completed === true);
+    const completedTasks = tasks.filter(x => x.completed === true);
     completedTasks.forEach(f => tasks.splice(tasks.findIndex(x => x.completed === f.completed),1));
     writeToLocal();
     initializeComponent();
-    if(activeDuties.classList.contains("focus")){
-        findActiveTasks();
-    }
-    if(completedDuties.classList.contains("focus")){
-        findCompletedTasks();
-    }
+    filterTasks();
 }
 deleteCompletedDuties.addEventListener('click', deleteCompletedTasks);
-
 
 //Добавление задачи при нажатии на клавишу Enter
 taskInput.addEventListener('keypress', event => {
@@ -300,12 +208,7 @@ taskInput.addEventListener('keypress', event => {
             writeToLocal();
             initializeComponent();
             infoDuties.classList.remove('infoDuties_hide');
-            if(activeDuties.classList.contains("focus")){
-                findActiveTasks();
-            }
-            if(completedDuties.classList.contains("focus")){
-                findCompletedTasks();
-            }
+            filterTasks();
             countTasks();
         }
     }
